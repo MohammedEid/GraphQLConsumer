@@ -4,10 +4,10 @@
     ViewBag.Title = "Orders";
 }
 
-<h2>Orders</h2>
+<h2>Orders [ @Model.Count() ]</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create New", "CreateOrder")
 </p>
 <table class="table">
     <tr>
@@ -120,9 +120,9 @@
             @Html.DisplayFor(modelItem => item.ShipCountry)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.OrderID }) |
+            @Html.ActionLink("Edit", "EditOrder", new { orderId = item.OrderID }) |
             @Html.ActionLink("Details", "OrderDetails", new { orderId = item.OrderID }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.OrderID })
+            @Html.ActionLink("Delete", "DeleteOrder", new { orderId = item.OrderID })
         </td>
     </tr>
 }

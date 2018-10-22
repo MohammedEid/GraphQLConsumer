@@ -112,14 +112,69 @@ namespace GraphQLConsumer.Controllers
 
             string json = JsonConvert.SerializeObject(graphQLResponse.Data);
             var result = JsonConvert.DeserializeObject<Dictionary<string, Order>>(json);
-            //List<Order> orders = new List<Order>();
-            //foreach (var obj in result.Values.ElementAt(0))
-            //{
-            //    orders.Add(obj);
-            //}
             return View(result.Values.ElementAt(0));
         }
 
+        [HttpGet]
+        public async Task<ActionResult> CreateOrder()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> CreateOrder(Order order)
+        {
+            order.Order_Details = null;
+            GraphQLQuery graphQLMutation = GraphQLHelper.GetGraphQLQuery("CreateOrder");
+            var graphQLRequest = new GraphQLRequest { Query = graphQLMutation.Body, OperationName = "CreateOrder", Variables = new { orderParam = order } };
+
+            var graphQLClient = new GraphQLClient("http://localhost:13515/api/school");
+            var graphQLResponse = await graphQLClient.PostAsync(graphQLRequest);
+            string json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result = JsonConvert.DeserializeObject<Dictionary<string, Order>>(json);
+
+            return RedirectToAction("OrderDetails", new { orderId = result.Values.ElementAt(0).OrderID });
+        }
+        [HttpGet]
+        public async Task<ActionResult> EditOrder(int orderId)
+        {
+            GraphQLQuery graphQLQuery = GraphQLHelper.GetGraphQLQuery("GetOrderById");
+            var graphQLRequest = new GraphQLRequest { Query = graphQLQuery.Body, OperationName = "GetOrderById", Variables = new { orderId = orderId } };
+
+            var graphQLClient = new GraphQLClient("http://localhost:13515/api/school");
+            var graphQLResponse = await graphQLClient.PostAsync(graphQLRequest);
+
+            string json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result = JsonConvert.DeserializeObject<Dictionary<string, Order>>(json);
+            return View(result.Values.ElementAt(0));
+        }
+        [HttpPost]
+        public async Task<ActionResult> EditOrder(Order order)
+        {
+            order.Order_Details = null;
+            GraphQLQuery graphQLMutation = GraphQLHelper.GetGraphQLQuery("EditOrder");
+            var graphQLRequest = new GraphQLRequest { Query = graphQLMutation.Body, OperationName = "EditOrder", Variables = new { orderParam = order } };
+
+            var graphQLClient = new GraphQLClient("http://localhost:13515/api/school");
+            var graphQLResponse = await graphQLClient.PostAsync(graphQLRequest);
+            string json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result = JsonConvert.DeserializeObject<Dictionary<string, Order>>(json);
+
+            return RedirectToAction("OrderDetails", new { orderId = result.Values.ElementAt(0).OrderID });
+        }
+        
+        public async Task<ActionResult> DeleteOrder(int orderId)
+        {
+            GraphQLQuery graphQLQuery = GraphQLHelper.GetGraphQLQuery("DeleteOrder");
+            var graphQLRequest = new GraphQLRequest { Query = graphQLQuery.Body, OperationName = "DeleteOrder", Variables = new { orderId = orderId } };
+
+            var graphQLClient = new GraphQLClient("http://localhost:13515/api/school");
+            var graphQLResponse = await graphQLClient.PostAsync(graphQLRequest);
+
+            string json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result = JsonConvert.DeserializeObject<Dictionary<string, int>>(json);
+            return RedirectToAction("Orders");
+        }
         public class Course
         {
             public int Id { set; get; }
