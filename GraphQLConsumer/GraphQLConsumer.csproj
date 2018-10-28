@@ -168,6 +168,8 @@
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\Shipper.cs" />
     <Compile Include="Models\Supplier.cs" />
+    <Compile Include="Models\ViewModels\CreateOrderVm.cs" />
+    <Compile Include="Models\ViewModels\OrdersVm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

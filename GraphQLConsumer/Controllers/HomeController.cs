@@ -93,13 +93,22 @@ namespace GraphQLConsumer.Controllers
             var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
 
             string json = JsonConvert.SerializeObject(graphQLResponse.Data);
-            var result = JsonConvert.DeserializeObject<Dictionary<string, List<Order>>>(json);
+            var result = JsonConvert.DeserializeObject<Dictionary<string, OrdersVm>>(json);
             List<Order> orders = new List<Order>();
-            foreach (var obj in result.Values.ElementAt(0))
+            OrdersVm ordersVm = new OrdersVm();
+            foreach (var obj in result.Values.ElementAt(0).Orders)
             {
                 orders.Add(obj);
             }
-            return View(orders);
+            ordersVm.Orders = orders;
+            ordersVm.OrdersCount = result.Values.ElementAt(0).OrdersCount;
+            //var result = JsonConvert.DeserializeObject<Dictionary<string, List<Order>>>(json);
+            //List<Order> orders = new List<Order>();
+            //foreach (var obj in result.Values.ElementAt(0))
+            //{
+            //    orders.Add(obj);
+            //}
+            return View(ordersVm);
         }
 
         public async Task<ActionResult> OrderDetails(int orderId)
@@ -118,7 +127,52 @@ namespace GraphQLConsumer.Controllers
         [HttpGet]
         public async Task<ActionResult> CreateOrder()
         {
-            return View();
+            CreateOrderVm createOrderVm = new CreateOrderVm();
+
+            //get customers
+            var graphQLClient = new GraphQLClient("http://localhost:13515/api/school");
+            GraphQLQuery graphQLQuery = GraphQLHelper.GetGraphQLQuery("GetCustomers");
+            var heroRequest = new GraphQLRequest { Query = graphQLQuery.Body, OperationName = "GetAllCustomers" };
+            var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+            
+            string json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result = JsonConvert.DeserializeObject<Dictionary<string, List<Customer>>>(json);
+            List<Customer> customers = new List<Customer>();
+            foreach (var obj in result.Values.ElementAt(0))
+            {
+                customers.Add(obj);
+            }
+            createOrderVm.Customers = customers;
+
+            //get employees
+            graphQLQuery = GraphQLHelper.GetGraphQLQuery("GetEmployees");
+            heroRequest = new GraphQLRequest { Query = graphQLQuery.Body, OperationName = "GetAllEmployees" };
+            graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+
+            json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result2 = JsonConvert.DeserializeObject<Dictionary<string, List<Employee>>>(json);
+            List<Employee> employees = new List<Employee>();
+            foreach (var obj in result2.Values.ElementAt(0))
+            {
+                employees.Add(obj);
+            }
+            createOrderVm.Employees = employees;
+
+            //get shippers
+            graphQLQuery = GraphQLHelper.GetGraphQLQuery("GetShippers");
+            heroRequest = new GraphQLRequest { Query = graphQLQuery.Body, OperationName = "GetAllShippers" };
+            graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+
+            json = JsonConvert.SerializeObject(graphQLResponse.Data);
+            var result3 = JsonConvert.DeserializeObject<Dictionary<string, List<Shipper>>>(json);
+            List<Shipper> shippers = new List<Shipper>();
+            foreach (var obj in result3.Values.ElementAt(0))
+            {
+                shippers.Add(obj);
+            }
+            createOrderVm.Shippers = shippers;
+
+            return View(createOrderVm);
         }
 
         [HttpPost]
